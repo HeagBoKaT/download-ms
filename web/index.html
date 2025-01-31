@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Установка приложений из Microsoft Store</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-cube"></i>
+                <h1>Обход Store</h1>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="card">
+                <div class="input-group">
+                    <i class="fas fa-link input-icon"></i>
+                    <input type="text" id="storeUrl" placeholder="https://apps.microsoft.com/...">
+                    <button class="install-btn" onclick="installApp()">
+                        <i class="fas fa-rocket"></i>
+                        <span>Установить</span>
+                    </button>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="status-header">
+                        <i class="fas fa-cloud-download-alt"></i>
+                        <h3>Прогресс загрузки</h3>
+                    </div>
+                    <progress id="download-progress" value="0" max="100"></progress>
+                    <div class="progress-info">
+                        <span id="progress-text">0 MB</span>
+                        <span id="download-speed">0 KB/s</span>
+                        <span id="download-time">0с</span>
+                    </div>
+                    <progress id="install-progress" value="0" max="100"></progress>
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+    eel.expose(update_progress);
+    function update_progress(percent, speed, total) {
+        const progress = document.getElementById('download-progress');
+        const speedElem = document.getElementById('download-speed');
+        const progressText = document.getElementById('progress-text');
+        
+        progress.value = percent;
+        
+        // Форматирование скорости
+        const speedMB = speed / 1024 / 1024;
+        speedElem.textContent = speedMB > 1 ? 
+            `${speedMB.toFixed(1)} MB/s` : 
+            `${(speed / 1024).toFixed(1)} KB/s`;
+            
+        // Форматирование общего размера
+        if(total > 0) {
+            const totalMB = total / 1024 / 1024;
+            progressText.textContent = `${totalMB.toFixed(1)} MB`;
+        }
+    }
+
+    eel.expose(update_download_progress);
+    function update_download_progress(percent, speed, total, remaining) {
+        const progressBar = document.getElementById('download-progress');
+        const speedElem = document.getElementById('download-speed');
+        const progressText = document.getElementById('progress-text');
+        const timeElem = document.getElementById('download-time');
+        
+        progressBar.value = percent;
+        
+        // Форматирование скорости
+        const speedMB = speed / 1024 / 1024;
+        speedElem.textContent = speedMB > 1 ? 
+            `${speedMB.toFixed(1)} MB/s` : 
+            `${(speed / 1024).toFixed(1)} KB/s`;
+            
+        // Форматирование общего размера
+        if(total > 0) {
+            const totalMB = total / 1024 / 1024;
+            progressText.textContent = `${totalMB.toFixed(1)} MB`;
+        }
+        
+        // Анимация заполнения
+        progressBar.style.setProperty('--progress', `${percent}%`);
+        
+        // Форматирование времени
+        const mins = Math.floor(remaining / 60);
+        timeElem.textContent = `${mins}м ${Math.floor(remaining % 60)}с`;
+    }
+
+    eel.expose(start_installation);
+    function start_installation() {
+        document.getElementById('install-progress').style.display = 'block';
+    }
+
+    eel.expose(update_install_progress);
+    function update_install_progress(percent) {
+        const installBar = document.getElementById('install-progress');
+        installBar.value = percent;
+        installBar.style.setProperty('--progress', `${percent}%`);
+    }
+    </script>
+</body>
+</html> 
